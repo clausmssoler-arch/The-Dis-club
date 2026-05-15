@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Dis Club - Panel Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #06B6D4 0%, #22D3EE 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .login-box h1 {
+            color: #06B6D4;
+            font-size: 32px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .login-box p {
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #06B6D4;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #06B6D4;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #06B6D4, #22D3EE);
+            color: white;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            color: #06B6D4;
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .modal-content p {
+            color: #6b7280;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: #06B6D4;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+        }
+
+        /* ADMIN PANEL */
+        .admin-screen {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        .admin-screen.show {
+            display: block;
+        }
+
+        .admin-header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .admin-header h1 {
+            color: #06B6D4;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .admin-header p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #06B6D4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #06B6D4;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .logout-btn {
+            background: #f3f4f6;
+            color: #06B6D4;
+            padding: 12px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            color: #06B6D4;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f9fafb;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #06B6D4;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .register-form {
+            display: none;
+        }
+
+        .register-form.show {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .form-section-title {
+            color: #06B6D4;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .checkbox-item input {
+            width: 18px;
+            height: 18px;
+            accent-color: #06B6D4;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            font-size: 13px;
+            flex: 1;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            min-height: 80px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #06B6D4;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #06B6D4;
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div class="login-box" id="loginScreen">
+        <h1>💜 The Dis Club</h1>
+        <p>Plataforma inteligente de síntomas</p>
+
+        <div class="error-message" id="loginError"></div>
+
+        <!-- LOGIN FORM -->
+        <div id="loginForm">
+            <div class="input-group">
+                <input type="email" id="loginEmail" placeholder="Correo electrónico">
+            </div>
+            <div class="input-group">
+                <input type="password" id="loginPassword" placeholder="Contraseña">
+            </div>
+
+            <div class="button-group">
+                <button class="btn-secondary" onclick="toggleForm()">Registrarse</button>
+                <button class="btn-primary" onclick="login()">Entrar</button>
+            </div>
+
+            <button onclick="showForgotPasswordModal()" style="width: 100%; padding: 10px; background: none; border: none; color: #06B6D4; font-weight: 600; cursor: pointer; font-size: 13px; text-decoration: underline; margin-top: 12px;">¿Olvidaste tu contraseña?</button>
+
+            <button class="btn-admin" onclick="showAdminPasswordModal()">⚙️ Acceso Admin</button>
+        </div>
+
+        <!-- REGISTER FORM -->
+        <div id="registerForm" class="register-form">
+            <div class="form-section">
+                <div class="form-section-title">📋 Información Personal</div>
+                <div class="input-group">
+                    <input type="text" id="regFullName" placeholder="Nombre completo">
+                </div>
+                <div class="input-group">
+                    <input type="email" id="regEmail" placeholder="Correo electrónico">
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <input type="number" id="regAge" placeholder="Edad" min="1" max="120">
+                    </div>
+                    <div class="input-group">
+                        <input type="date" id="regBirthdate" placeholder="Fecha nacimiento">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">🏥 Información Médica</div>
+                <select id="regDiagnosis">
+                    <option value="">Selecciona diagnóstico</option>
+                    <option value="pots">POTS</option>
+                    <option value="eds">EDS</option>
+                    <option value="mecfs">ME/CFS</option>
+                    <option value="mcas">MCAS</option>
+                    <option value="other">Otro</option>
+                </select>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">💊 Medicamentos</div>
+                <textarea id="regMedications" placeholder="Ej: Propranolol, Fludrocortisona..."></textarea>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">⚠️ Antecedentes</div>
+                <textarea id="regAntecedents" placeholder="Alergias, comorbilidades..."></textarea>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">🏃 Actividad</div>
+                <select id="regActivity">
+                    <option value="">Nivel de actividad</option>
+                    <option value="sedentary">Sedentaria</option>
+                    <option value="light">Ligera</option>
+                    <option value="moderate">Moderada</option>
+                    <option value="active">Activa</option>
+                </select>
+            </div>
+
+            <div class="input-group" style="margin-top: 20px;">
+                <input type="password" id="regPassword" placeholder="Contraseña (6+ caracteres)">
+            </div>
+
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="btn-secondary" onclick="toggleForm()">Volver</button>
+                <button class="btn-primary" onclick="register()">Registrarse</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PASSWORD ADMIN -->
+    <div class="modal" id="adminPasswordModal">
+        <div class="modal-content">
+            <h2>⚙️ Acceso Admin</h2>
+            <p>Ingresa la contraseña para acceder</p>
+
+            <div class="error-message" id="adminError"></div>
+
+            <input type="password" id="adminPasswordInput" placeholder="Contraseña">
+
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeAdminPasswordModal()">Cancelar</button>
+                <button class="btn-primary" onclick="validateAdminPassword()">Entrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RECUPERAR CONTRASEÑA - PASO 1 -->
+    <div class="modal" id="forgotPasswordModal">
+        <div class="modal-content">
+            <h2>🔑 Recuperar Contraseña</h2>
+            <p>Ingresa tu email para cambiar tu contraseña</p>
+
+            <div class="error-message" id="forgotError"></div>
+
+            <input type="email" id="forgotEmail" placeholder="Tu email registrado">
+
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeForgotPasswordModal()">Cancelar</button>
+                <button class="btn-primary" onclick="verifyEmailForPassword()">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CAMBIAR CONTRASEÑA - PASO 2 -->
+    <div class="modal" id="resetPasswordModal">
+        <div class="modal-content">
+            <h2>🔐 Nueva Contraseña</h2>
+            <p id="resetPasswordText">Ingresa tu nueva contraseña</p>
+
+            <div class="error-message" id="resetError"></div>
+
+            <input type="password" id="newPassword" placeholder="Nueva contraseña (6+ caracteres)">
+            <input type="password" id="confirmPassword" placeholder="Confirma contraseña" style="margin-top: 12px;">
+
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button class="btn-secondary" onclick="closeResetPasswordModal()">Cancelar</button>
+                <button class="btn-primary" onclick="changePassword()">Cambiar Contraseña</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div class="admin-screen" id="adminPanel">
+        <div class="admin-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>📊 Panel de Admin</h1>
+                    <p>Inteligencia de datos - The Dis Club</p>
+                </div>
+                <button class="logout-btn" onclick="adminLogout()">Salir</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalUsers">0</div>
+                <div class="stat-label">Usuarios Totales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalRegistered">0</div>
+                <div class="stat-label">Usuarios Registrados Hoy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalDataPoints">0</div>
+                <div class="stat-label">Puntos de Dato</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>👥 Lista de Usuarios</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Edad</th>
+                        <th>Diagnóstico</th>
+                        <th>Registrado</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>📥 Exportar Datos</h2>
+            <button class="btn-primary" onclick="exportUsers()" style="width: 100%;">Descargar CSV</button>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = 'admin123';
+        let currentUser = null;
+        let isAdmin = false;
+
+        // ===== LOGIN =====
+        function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showLoginError('Completa email y contraseña');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('disClubUsers') || '{}');
+            const user = users[email];
+
+            if (!user || user.password !== password) {
+                showLoginError('Email o contraseña incorrectos');
+                return;
+            }
+
+            currentUser = email;
+            localStorage.setItem('currentUser', email);
+            alert('✅ Bienvenido!');
+        }
+
+        function showLoginError(msg) {
+            const error = document.getElementById('loginError');
+            error.textContent = msg;
+            error.classList.add('show');
+            setTimeout(() => error.classList.remove('show'), 3000);
+        }
+
+        // ===== REGISTER =====
+        function toggleForm() {
+            document.getElementById('loginForm').classList.toggle('show');
+            document.getElementById('registerForm').classList.toggle('show');
+            document.getElementById('loginError').textContent = '';
+            document.getElementById('loginError').classList.remove('show');
+        }
+
+        function register() {
+            const fullName = document.getElementById('regFullName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const age = parseInt(document.getElementById('regAge').value);
+            const birthdate = document.getElementById('regBirthdate').value;
+            const password = document.getElementById('regPassword').value;
+            const diagnosis = document.getElementById('regDiagnosis').value;
+            const medications = document.getElementById('regMedications').value;
+            const antecedents = document.getElementById('regAntecedents').value;
+            const activity = document.getElementById('regActivity').value;
+
+            if (!fullName || !email || !age || !birthdate || !password || !diagnosis) {
+                showLoginError('Completa todos los campos requeridos');
+                return;
+            }
+
+            if (password.length < 6) {
+                showLoginError('Contraseña mínimo 6 caracteres');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('disClubUsers') || '{}');
+            if (users[email]) {
+                showLoginError('Email ya registrado');
+                return;
+            }
+
+            users[email] = {
+                fullName,
+                email,
+                age,
+                birthdate,
+                password,
+                diagnosis,
+                medications,
+                antecedents,
+                activity,
+                registeredAt: new Date().toISOString()
+            };
+
+            localStorage.setItem('disClubUsers', JSON.stringify(users));
+            alert('✅ Usuario registrado! Ahora puedes entrar');
+            toggleForm();
+        }
+
+        // ===== ADMIN =====
+        function showAdminPasswordModal() {
+            const modal = document.getElementById('adminPasswordModal');
+            modal.classList.add('show');
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('adminError').textContent = '';
+            document.getElementById('adminError').classList.remove('show');
+            setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
+        }
+
+        function closeAdminPasswordModal() {
+            const modal = document.getElementById('adminPasswordModal');
+            modal.classList.remove('show');
+        }
+
+        function validateAdminPassword() {
+            const password = document.getElementById('adminPasswordInput').value;
+
+            if (password !== ADMIN_PASSWORD) {
+                const error = document.getElementById('adminError');
+                error.textContent = '❌ Contraseña incorrecta';
+                error.classList.add('show');
+                document.getElementById('adminPasswordInput').value = '';
+                return;
+            }
+
+            closeAdminPasswordModal();
+            openAdminPanel();
+        }
+
+        function openAdminPanel() {
+            isAdmin = true;
+            currentUser = 'admin';
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminPanel').classList.add('show');
+            loadAdminData();
+        }
+
+        function adminLogout() {
+            if (confirm('¿Deseas salir?')) {
+                isAdmin = false;
+                currentUser = null;
+                document.getElementById('loginScreen').style.display = 'block';
+                document.getElementById('adminPanel').classList.remove('show');
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+                toggleForm();
+            }
+        }
+
+        function loadAdminData() {
+            const users = Object.values(JSON.parse(localStorage.getItem('disClubUsers') || '{}'));
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('totalRegistered').textContent = users.filter(u => {
+                const registered = new Date(u.registeredAt);
+                const today = new Date();
+                return registered.toDateString() === today.toDateString();
+            }).length;
+            document.getElementById('totalDataPoints').textContent = users.length * 5;
+
+            const table = document.getElementById('usersTable');
+            table.innerHTML = users.map(u => `
+                <tr>
+                    <td>${u.fullName}</td>
+                    <td>${u.email}</td>
+                    <td>${u.age}</td>
+                    <td>${u.diagnosis}</td>
+                    <td>${new Date(u.registeredAt).toLocaleDateString('es-ES')}</td>
+                </tr>
+            `).join('');
+        }
+
+        function exportUsers() {
+            const users = Object.values(JSON.parse(localStorage.getItem('disClubUsers') || '{}'));
+            let csv = 'Nombre,Email,Edad,Diagnóstico,Fecha Registro\n';
+            users.forEach(u => {
+                csv += `"${u.fullName}","${u.email}",${u.age},"${u.diagnosis}","${new Date(u.registeredAt).toLocaleDateString('es-ES')}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `usuarios-dis-club-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        // Permitir ENTER en modales
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && document.getElementById('adminPasswordModal').classList.contains('show')) {
+                validateAdminPassword();
+            }
+            if (e.key === 'Enter' && document.getElementById('forgotPasswordModal').classList.contains('show')) {
+                verifyEmailForPassword();
+            }
+            if (e.key === 'Enter' && document.getElementById('resetPasswordModal').classList.contains('show')) {
+                changePassword();
+            }
+        });
+
+        // ===== RECUPERAR CONTRASEÑA =====
+        let emailForReset = null;
+
+        function showForgotPasswordModal() {
+            const modal = document.getElementById('forgotPasswordModal');
+            modal.classList.add('show');
+            document.getElementById('forgotEmail').value = '';
+            document.getElementById('forgotError').textContent = '';
+            document.getElementById('forgotError').classList.remove('show');
+            setTimeout(() => document.getElementById('forgotEmail').focus(), 100);
+        }
+
+        function closeForgotPasswordModal() {
+            const modal = document.getElementById('forgotPasswordModal');
+            modal.classList.remove('show');
+            emailForReset = null;
+        }
+
+        function closeResetPasswordModal() {
+            const modal = document.getElementById('resetPasswordModal');
+            modal.classList.remove('show');
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('resetError').textContent = '';
+            document.getElementById('resetError').classList.remove('show');
+            emailForReset = null;
+        }
+
+        function verifyEmailForPassword() {
+            const email = document.getElementById('forgotEmail').value.trim();
+
+            if (!email) {
+                showForgotError('Ingresa tu email');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('disClubUsers') || '{}');
+            const user = users[email];
+
+            if (!user) {
+                showForgotError('Email no encontrado en el sistema');
+                return;
+            }
+
+            emailForReset = email;
+            closeForgotPasswordModal();
+            openResetPasswordModal(user.fullName);
+        }
+
+        function openResetPasswordModal(userName) {
+            const modal = document.getElementById('resetPasswordModal');
+            document.getElementById('resetPasswordText').textContent = `Hola ${userName.split(' ')[0]}, ingresa tu nueva contraseña`;
+            modal.classList.add('show');
+            setTimeout(() => document.getElementById('newPassword').focus(), 100);
+        }
+
+        function changePassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!newPassword || !confirmPassword) {
+                showResetError('Completa ambos campos');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showResetError('Contraseña mínimo 6 caracteres');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showResetError('Las contraseñas no coinciden');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('disClubUsers') || '{}');
+            if (users[emailForReset]) {
+                users[emailForReset].password = newPassword;
+                localStorage.setItem('disClubUsers', JSON.stringify(users));
+                
+                alert('✅ ¡Contraseña cambiada exitosamente!\n\nAhora puedes entrar con tu nueva contraseña');
+                closeResetPasswordModal();
+            }
+        }
+
+        function showForgotError(msg) {
+            const error = document.getElementById('forgotError');
+            error.textContent = '❌ ' + msg;
+            error.classList.add('show');
+        }
+
+        function showResetError(msg) {
+            const error = document.getElementById('resetError');
+            error.textContent = '❌ ' + msg;
+            error.classList.add('show');
+        }
+
+        // Cargar usuario guardado
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser === 'admin') {
+            openAdminPanel();
+        }
+    </script>
+</body>
+</html>
