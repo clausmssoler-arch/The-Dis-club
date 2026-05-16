@@ -4,317 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Dis Club</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Montserrat', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .container { width: 100%; max-width: 500px; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; }
         .header h1 { font-size: 28px; margin-bottom: 5px; }
-        .header p { font-size: 14px; opacity: 0.9; }
         .content { padding: 30px 20px; }
         .form-group { margin-bottom: 15px; }
-        input, select, textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 14px; }
-        input:focus, select:focus, textarea:focus { border-color: #667eea; outline: none; }
-        button { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 700; cursor: pointer; font-size: 14px; margin-top: 10px; }
-        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); }
-        .hidden { display: none; }
-        .alert { padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
-        .alert-success { background: #d4edda; color: #155724; }
-        .alert-error { background: #f8d7da; color: #721c24; }
-        .mood-btn { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #e0e0e0; background: white; cursor: pointer; font-size: 30px; margin: 5px; }
-        .mood-btn.selected { border-color: #667eea; background: #f0f4ff; transform: scale(1.1); }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; }
-        .tab-btn { padding: 10px 15px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 700; color: #999; margin: 0; width: auto; }
-        .tab-btn.active { color: #667eea; border-bottom-color: #667eea; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; }
+        button { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; margin-top: 10px; }
+        button:hover { opacity: 0.9; }
+        .hidden { display: none !important; }
+        .gray-btn { background: #999 !important; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="authSection">
-            <div class="header">
-                <h1>💜 The Dis Club</h1>
-                <p>Rastreador de Síntomas</p>
-            </div>
-            <div class="content">
-                <div id="authMessage" class="alert hidden"></div>
-                <div id="loginForm">
-                    <h2 style="font-size: 20px; margin-bottom: 20px;">Inicia Sesión</h2>
-                    <div class="form-group">
-                        <input type="email" id="loginEmail" placeholder="Email">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="loginPassword" placeholder="Contraseña">
-                    </div>
-                    <button onclick="login()">Entrar</button>
-                    <button onclick="showRegisterForm()" style="background: #999;">Crear Cuenta</button>
-                </div>
-                <div id="registerForm" class="hidden">
-                    <h2 style="font-size: 20px; margin-bottom: 20px;">Crear Cuenta</h2>
-                    <div class="form-group">
-                        <input type="text" id="regName" placeholder="Nombre completo">
-                    </div>
-                    <div class="form-group">
-                        <input type="email" id="regEmail" placeholder="Email">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="regPassword" placeholder="Contraseña">
-                    </div>
-                    <div class="form-group">
-                        <input type="number" id="regAge" placeholder="Edad">
-                    </div>
-                    <div class="form-group">
-                        <select id="regDiagnosis">
-                            <option value="">Selecciona diagnóstico</option>
-                            <option value="POTS">POTS</option>
-                            <option value="EDS">EDS</option>
-                            <option value="ME/CFS">ME/CFS</option>
-                            <option value="DIS">DIS</option>
-                            <option value="MCAS">MCAS</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
-                    <button onclick="register()">Registrarse</button>
-                    <button onclick="showLoginForm()" style="background: #999;">Volver</button>
-                </div>
-            </div>
+        <div class="header">
+            <h1>💜 The Dis Club</h1>
+            <p>Rastreador de Síntomas</p>
         </div>
-        <div id="appSection" class="hidden">
-            <div class="header">
-                <h1>💜 The Dis Club</h1>
-                <p id="userEmail" style="font-size: 12px;"></p>
-            </div>
-            <div class="content">
-                <div id="appMessage" class="alert hidden"></div>
-                <div class="tabs">
-                    <button class="tab-btn active" onclick="switchTab('diary', this)">📔 Diario</button>
-                    <button class="tab-btn" onclick="switchTab('settings', this)">⚙️ Ajustes</button>
+        <div class="content">
+            <div id="loginForm">
+                <h2 style="font-size: 20px; margin-bottom: 20px;">Inicia Sesión</h2>
+                <div class="form-group">
+                    <input type="email" placeholder="Email">
                 </div>
-                <div id="diary" class="tab-content active">
-                    <h3 style="margin-bottom: 15px;">¿Cómo te sientes hoy?</h3>
-                    <div style="text-align: center; margin: 15px 0;">
-                        <button class="mood-btn" onclick="setMood('good', this)">😊</button>
-                        <button class="mood-btn" onclick="setMood('okay', this)">😐</button>
-                        <button class="mood-btn" onclick="setMood('bad', this)">😞</button>
-                    </div>
-                    <div class="form-group">
-                        <textarea id="notes" placeholder="Notas..." style="min-height: 80px;"></textarea>
-                    </div>
-                    <button onclick="saveEntry()">Guardar Registro</button>
+                <div class="form-group">
+                    <input type="password" placeholder="Contraseña">
                 </div>
-                <div id="settings" class="tab-content">
-                    <h3 style="margin-bottom: 15px;">Ajustes</h3>
-                    <button onclick="logout()" style="background: #ff6b6b;">Cerrar Sesión</button>
+                <button onclick="alert('Login en construcción')">Entrar</button>
+                <button class="gray-btn" onclick="mostrarRegistro()">Crear Cuenta</button>
+            </div>
+            
+            <div id="registerForm" class="hidden">
+                <h2 style="font-size: 20px; margin-bottom: 20px;">Crear Cuenta</h2>
+                <div class="form-group">
+                    <input type="text" placeholder="Nombre completo">
                 </div>
-            </div>
-        </div>
-        <div id="adminSection" class="hidden">
-            <div class="header">
-                <h1>👑 Admin</h1>
-                <p>Panel de Control</p>
-            </div>
-            <div class="content">
-                <div id="adminMessage" class="alert hidden"></div>
-                <h3 style="margin-bottom: 15px;">Usuarios</h3>
-                <div id="usersList" style="margin-bottom: 20px; max-height: 300px; overflow-y: auto;"></div>
-                <h3 style="margin-bottom: 15px;">Registros</h3>
-                <div id="entriesList" style="margin-bottom: 20px; max-height: 300px; overflow-y: auto;"></div>
-                <button onclick="exportData()">📥 Descargar Datos</button>
-                <button onclick="logout()" style="background: #ff6b6b; margin-top: 10px;">Cerrar Sesión</button>
+                <div class="form-group">
+                    <input type="email" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <input type="password" placeholder="Contraseña">
+                </div>
+                <div class="form-group">
+                    <input type="number" placeholder="Edad">
+                </div>
+                <div class="form-group">
+                    <select>
+                        <option>Selecciona diagnóstico</option>
+                        <option>POTS</option>
+                        <option>EDS</option>
+                        <option>ME/CFS</option>
+                    </select>
+                </div>
+                <button onclick="alert('Registro en construcción')">Registrarse</button>
+                <button class="gray-btn" onclick="mostrarLogin()">Volver</button>
             </div>
         </div>
     </div>
+
     <script>
-        const SUPABASE_URL = 'https://lanhowspzmzpirtuzdob.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxhbmhvd3Nwem16cGlydHV6ZG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4Nzg1ODgsImV4cCI6MjA5NDQ1NDU4OH0.XCdhO56T5etbnZ2KJpSmkeZPr-dEaUe0tQKr10YwUgo';
-        let supabase = null;
-        let currentUser = null;
-        let currentMood = null;
-        
-        async function initSupabase() {
-            const { createClient } = window.supabase;
-            supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-            console.log('✅ Supabase initialized');
-        }
-        
-        window.addEventListener('load', initSupabase);
-        
-        function showLoginForm() {
+        function mostrarLogin() {
             document.getElementById('loginForm').classList.remove('hidden');
             document.getElementById('registerForm').classList.add('hidden');
         }
         
-        function showRegisterForm() {
+        function mostrarRegistro() {
             document.getElementById('loginForm').classList.add('hidden');
             document.getElementById('registerForm').classList.remove('hidden');
-        }
-        
-        function showMessage(id, msg, type) {
-            const el = document.getElementById(id);
-            el.textContent = msg;
-            el.className = 'alert ' + (type === 'error' ? 'alert-error' : 'alert-success');
-            el.classList.remove('hidden');
-        }
-        
-        async function register() {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const age = document.getElementById('regAge').value;
-            const diagnosis = document.getElementById('regDiagnosis').value;
-            
-            if (!name || !email || !password || !age || !diagnosis) {
-                showMessage('authMessage', '❌ Completa todos los campos', 'error');
-                return;
-            }
-            
-            try {
-                const { data, error } = await supabase.auth.signUp({ email, password });
-                if (error) throw error;
-                
-                await supabase.from('users').insert([{
-                    id: data.user.id,
-                    email,
-                    name,
-                    age: parseInt(age),
-                    diagnosis,
-                    created_at: new Date().toISOString()
-                }]);
-                
-                showMessage('authMessage', '✅ Cuenta creada! Inicia sesión', 'success');
-                setTimeout(showLoginForm, 1000);
-            } catch (err) {
-                showMessage('authMessage', '❌ ' + err.message, 'error');
-            }
-        }
-        
-        async function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            if (!email || !password) {
-                showMessage('authMessage', '❌ Completa email y contraseña', 'error');
-                return;
-            }
-            
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-                
-                currentUser = data.user;
-                
-                if (email === 'admin@thedisclub.com') {
-                    showAdminDashboard();
-                } else {
-                    showAppSection();
-                }
-            } catch (err) {
-                showMessage('authMessage', '❌ Email o contraseña incorrectos', 'error');
-            }
-        }
-        
-        function logout() {
-            supabase.auth.signOut();
-            currentUser = null;
-            document.getElementById('authSection').classList.remove('hidden');
-            document.getElementById('appSection').classList.add('hidden');
-            document.getElementById('adminSection').classList.add('hidden');
-            showLoginForm();
-        }
-        
-        function showAppSection() {
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('appSection').classList.remove('hidden');
-            document.getElementById('userEmail').textContent = currentUser.email;
-        }
-        
-        function setMood(mood, btn) {
-            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            currentMood = mood;
-        }
-        
-        function switchTab(tab, btn) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tab).classList.add('active');
-            btn.classList.add('active');
-        }
-        
-        async function saveEntry() {
-            if (!currentMood) {
-                showMessage('appMessage', '❌ Selecciona tu estado de ánimo', 'error');
-                return;
-            }
-            
-            const notes = document.getElementById('notes').value;
-            
-            try {
-                await supabase.from('entries').insert([{
-                    user_id: currentUser.id,
-                    mood: currentMood,
-                    notes,
-                    created_at: new Date().toISOString()
-                }]);
-                
-                showMessage('appMessage', '✅ Registro guardado!', 'success');
-                document.getElementById('notes').value = '';
-                currentMood = null;
-                document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-            } catch (err) {
-                showMessage('appMessage', '❌ Error: ' + err.message, 'error');
-            }
-        }
-        
-        async function showAdminDashboard() {
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('adminSection').classList.remove('hidden');
-            loadAdminData();
-        }
-        
-        async function loadAdminData() {
-            try {
-                const { data: users } = await supabase.from('users').select('*');
-                const { data: entries } = await supabase.from('entries').select('*');
-                
-                const usersList = document.getElementById('usersList');
-                const entriesList = document.getElementById('entriesList');
-                
-                usersList.innerHTML = (users || []).map(u => `
-                    <div style="padding: 10px; border-bottom: 1px solid #eee;">
-                        <strong>${u.name}</strong> (${u.email}) - ${u.age} años - ${u.diagnosis}
-                    </div>
-                `).join('');
-                
-                entriesList.innerHTML = (entries || []).map(e => {
-                    const date = new Date(e.created_at).toLocaleDateString('es-ES');
-                    const mood = e.mood === 'good' ? '😊' : e.mood === 'okay' ? '😐' : '😞';
-                    return `<div style="padding: 10px; border-bottom: 1px solid #eee;">${mood} ${date}</div>`;
-                }).join('');
-            } catch (err) {
-                console.error(err);
-            }
-        }
-        
-        async function exportData() {
-            try {
-                const { data: users } = await supabase.from('users').select('*');
-                const { data: entries } = await supabase.from('entries').select('*');
-                
-                const json = JSON.stringify({ users, entries }, null, 2);
-                const blob = new Blob([json], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'datos-dis-club.json';
-                a.click();
-                URL.revokeObjectURL(url);
-            } catch (err) {
-                showMessage('adminMessage', '❌ Error: ' + err.message, 'error');
-            }
         }
     </script>
 </body>
