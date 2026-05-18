@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Dis Club - Rastreador de Síntomas de Disautonomía</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #06B6D4 0%, #22D3EE 100%);
+            min-height: 100vh;
+            padding-top: 70px;
+            padding-bottom: 50px;
+        }
+
+        /* BANNER SUPERIOR */
+        #top-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #06B6D4, #22D3EE);
+            color: white;
+            padding: 12px 16px;
+            z-index: 998;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .banner-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .social-btn, .dropdown-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .social-btn:hover, .dropdown-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* DROPDOWN */
+        .premium-dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-width: 250px;
+            z-index: 1001;
+            display: none;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
+            padding: 14px 18px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #333;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: #f0f9ff;
+            color: #06B6D4;
+        }
+
+        /* MODAL OVERLAY */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #06B6D4;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        /* PREMIUM SECTION */
+        .premium-section {
+            background: linear-gradient(135deg, #f0f9ff, #f5f3ff);
+            border: 2px solid #06B6D4;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .premium-section.visible {
+            display: block;
+        }
+
+        .premium-title {
+            color: #06B6D4;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .premium-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .premium-card {
+            background: white;
+            border: 1px solid #e0e7ff;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .premium-card:hover {
+            border-color: #06B6D4;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .card-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .card-title {
+            color: #06B6D4;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .premium-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        /* FOOTER */
+        #copyright-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.95), rgba(34, 211, 238, 0.95));
+            color: white;
+            padding: 10px 16px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 500;
+            z-index: 999;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #06B6D4, #22D3EE);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- BANNER -->
+    <div id="top-banner">
+        <div class="banner-left">
+            <span>📱 Sígueme:</span>
+            <a href="https://instagram.com/claudiasanmartin" target="_blank" class="social-btn">📸 Instagram</a>
+            <a href="https://www.tiktok.com/@claudiasanmartins" target="_blank" class="social-btn">🎵 TikTok</a>
+        </div>
+        <div class="premium-dropdown">
+            <button class="dropdown-toggle" onclick="toggleDropdown()">✨ Premium Features ▼</button>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <div class="dropdown-item" onclick="openForum()"><strong>💬 Foro Privado</strong><br><small>Comunidad premium</small></div>
+                <div class="dropdown-item" onclick="openMedicalReport()"><strong>📋 Informe Médico</strong><br><small>Para tu doctor</small></div>
+                <div class="dropdown-item" onclick="openSpotify()"><strong>🎵 Meditaciones</strong><br><small>Playlist Spotify</small></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- PREMIUM SECTION (solo para usuarios pagados) -->
+        <div class="premium-section" id="premiumSection">
+            <div class="premium-title">✨ Características Premium <span class="premium-badge">ACTIVO</span></div>
+            <div class="premium-grid">
+                <div class="premium-card" onclick="openForum()">
+                    <div class="card-icon">💬</div>
+                    <div class="card-title">Foro Privado</div>
+                </div>
+                <div class="premium-card" onclick="openMedicalReport()">
+                    <div class="card-icon">📋</div>
+                    <div class="card-title">Informe Médico</div>
+                </div>
+                <div class="premium-card" onclick="openSpotify()">
+                    <div class="card-icon">🎵</div>
+                    <div class="card-title">Meditaciones</div>
+                </div>
+                <div class="premium-card">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">Estadísticas</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PLACEHOLDER PARA CONTENIDO ORIGINAL -->
+        <div id="appContent" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h2 style="color: #06B6D4; margin-bottom: 15px;">📔 Mi Calendario de Síntomas</h2>
+            <p style="color: #666; margin-bottom: 20px;">
+                Este es el contenido de tu app original (calendario, síntomas, presión arterial, etc.)
+            </p>
+            <p style="color: #999; font-size: 12px;">
+                El archivo HTML original se insertará aquí manteniendo toda su funcionalidad.
+            </p>
+        </div>
+    </div>
+
+    <!-- FORO MODAL -->
+    <div class="modal-overlay" id="forumModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>💬 Foro Privado Premium</span>
+                <button class="modal-close" onclick="closeForum()">✕</button>
+            </div>
+            <button class="btn-primary" onclick="alert('Crear nuevo tema')" style="width: 100%; margin-bottom: 12px;">+ Crear Nuevo Tema</button>
+            <div id="forumTopics">
+                <div style="border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer;">
+                    <div style="color: #06B6D4; font-weight: 600; margin-bottom: 4px;">Consejos para el dolor de cabeza</div>
+                    <div style="color: #999; font-size: 12px;">👤 Usuaria • 3 comentarios • Hace 2 horas</div>
+                </div>
+                <div style="border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer;">
+                    <div style="color: #06B6D4; font-weight: 600; margin-bottom: 4px;">¿Alguien más tiene problemas con el calor?</div>
+                    <div style="color: #999; font-size: 12px;">👤 Usuaria • 8 comentarios • Hace 1 día</div>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="closeForum()" style="width: 100%; margin-top: 12px; background: #f3f4f6; color: #666;">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- INFORME MÉDICO MODAL -->
+    <div class="modal-overlay" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>📋 Informe para Médico</span>
+                <button class="modal-close" onclick="closeMedicalReport()">✕</button>
+            </div>
+            <div style="background: #f9fafb; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                <p><strong>Período:</strong> Últimos 30 días</p>
+                <p><strong>Total de registros:</strong> 28 días</p>
+                <p><strong>Días buenos:</strong> 12 😊</p>
+                <p><strong>Días regulares:</strong> 10 😐</p>
+                <p><strong>Días malos:</strong> 6 😞</p>
+            </div>
+            <h4 style="color: #06B6D4; margin-bottom: 8px;">Síntomas más frecuentes:</h4>
+            <ul style="margin-left: 20px; margin-bottom: 12px; color: #333;">
+                <li>Taquicardia (18 veces)</li>
+                <li>Fatiga (20 veces)</li>
+                <li>Mareos (15 veces)</li>
+            </ul>
+            <button class="btn-primary" onclick="alert('Descargando PDF...')" style="width: 100%; margin-bottom: 8px;">📥 Descargar PDF</button>
+            <button class="btn-primary" onclick="closeMedicalReport()" style="width: 100%; background: #f3f4f6; color: #666;">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- SPOTIFY MODAL -->
+    <div class="modal-overlay" id="spotifyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>🎵 Meditaciones Spotify</span>
+                <button class="modal-close" onclick="closeSpotify()">✕</button>
+            </div>
+            <p style="color: #666; margin-bottom: 16px;">Accede a nuestra playlist curada para el bienestar:</p>
+            <a href="https://open.spotify.com/playlist/7HpMaDVUgW4r1JxCfcbpfF" target="_blank" style="
+                display: block;
+                background: linear-gradient(135deg, #1DB954, #1ed760);
+                color: white;
+                padding: 12px;
+                border-radius: 8px;
+                text-align: center;
+                font-weight: 600;
+                text-decoration: none;
+                margin-bottom: 12px;
+            ">🎵 Abrir en Spotify</a>
+            <button class="btn-primary" onclick="closeSpotify()" style="width: 100%; background: #f3f4f6; color: #666;">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div id="copyright-footer">
+        © 2026 The Dis Club. Protegido por derecho de autor de <strong>Claudia San Martín</strong>.
+    </div>
+
+    <script>
+        /* ============================================
+           SISTEMA COMPLETO DE VERIFICACIÓN DE PAGO
+           ============================================ */
+
+        // 1. VERIFICAR ESTADO CUANDO CARGA LA PÁGINA
+        window.addEventListener('load', function() {
+            console.log('=== VERIFICACIÓN DE ESTADO DEL USUARIO ===');
+            
+            // Obtener datos de localStorage
+            const registrationDate = localStorage.getItem('registrationDate');
+            const isPaid = localStorage.getItem('isPaid') === 'true';
+            const paymentId = localStorage.getItem('paymentId');
+            
+            console.log('Fecha de registro:', registrationDate);
+            console.log('¿Pagó?:', isPaid);
+            console.log('ID de pago:', paymentId);
+            
+            // Si es la primera vez, guardar fecha
+            if (!registrationDate) {
+                const now = new Date().toISOString();
+                localStorage.setItem('registrationDate', now);
+                console.log('Primera vez - Registrando fecha:', now);
+            }
+            
+            // VERIFICAR SI VUELVE DE MERCADO PAGO
+            checkPaymentRedirect();
+            
+            // ACTUALIZAR INTERFAZ SEGÚN ESTADO
+            updateUI();
+        });
+
+        // 2. VERIFICAR SI VUELVE DE MERCADO PAGO
+        function checkPaymentRedirect() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentStatus = urlParams.get('status');
+            const paymentId = urlParams.get('payment_id');
+            const preferenceId = urlParams.get('preference_id');
+            
+            console.log('Parámetros de URL:', { paymentStatus, paymentId, preferenceId });
+            
+            // Si hay parámetros de pago exitoso
+            if (paymentStatus === 'approved' || paymentId || preferenceId) {
+                console.log('✅ PAGO DETECTADO - Activando Premium');
+                
+                // Guardar info de pago
+                localStorage.setItem('isPaid', 'true');
+                localStorage.setItem('paymentId', paymentId || 'mp-' + Date.now());
+                localStorage.setItem('paymentDate', new Date().toISOString());
+                
+                // Mostrar modal de confirmación
+                showPaymentSuccessModal();
+                
+                // Limpiar URL
+                setTimeout(() => {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }, 2000);
+            }
+        }
+
+        // 3. ACTUALIZAR INTERFAZ (MOSTRAR/OCULTAR PREMIUM SECTION)
+        function updateUI() {
+            const isPaid = localStorage.getItem('isPaid') === 'true';
+            const premiumSection = document.getElementById('premiumSection');
+            const dropdownToggle = document.querySelector('.dropdown-toggle');
+            
+            if (isPaid) {
+                // ✅ USUARIO PREMIUM
+                console.log('👑 Mostrando interfaz PREMIUM');
+                premiumSection.classList.add('visible');
+                dropdownToggle.textContent = '✨ Premium Features ▼';
+                // El usuario puede ver todo
+            } else {
+                // 🆓 USUARIO GRATIS O CON ACCESO LIMITADO
+                console.log('🆓 Usuario sin premium - Ocultando premium section');
+                premiumSection.classList.remove('visible');
+                dropdownToggle.textContent = '✨ Premium Features ▼';
+                // El usuario solo ve lo básico
+            }
+        }
+
+        // 4. MODAL DE ÉXITO
+        function showPaymentSuccessModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.6);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    border-radius: 16px;
+                    padding: 30px;
+                    max-width: 400px;
+                    text-align: center;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                ">
+                    <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+                    <h2 style="color: #06B6D4; margin-bottom: 10px;">¡Pago Confirmado!</h2>
+                    <p style="color: #666; margin-bottom: 20px;">Bienvenido a The Dis Club Premium. Tu suscripción está activa.</p>
+                    <button onclick="location.reload()" style="
+                        background: linear-gradient(135deg, #06B6D4, #22D3EE);
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">Continuar a la app</button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // 5. FUNCIONES DE DROPDOWN
+        function toggleDropdown() {
+            const menu = document.getElementById('dropdownMenu');
+            menu.classList.toggle('active');
+            
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.premium-dropdown')) {
+                    menu.classList.remove('active');
+                }
+            });
+        }
+
+        // 6. FUNCIONES DE MODALES
+        function openForum() {
+            document.getElementById('forumModal').classList.add('active');
+            document.getElementById('dropdownMenu').classList.remove('active');
+        }
+
+        function closeForum() {
+            document.getElementById('forumModal').classList.remove('active');
+        }
+
+        function openMedicalReport() {
+            document.getElementById('reportModal').classList.add('active');
+            document.getElementById('dropdownMenu').classList.remove('active');
+        }
+
+        function closeMedicalReport() {
+            document.getElementById('reportModal').classList.remove('active');
+        }
+
+        function openSpotify() {
+            document.getElementById('spotifyModal').classList.add('active');
+            document.getElementById('dropdownMenu').classList.remove('active');
+        }
+
+        function closeSpotify() {
+            document.getElementById('spotifyModal').classList.remove('active');
+        }
+
+        // 7. CERRAR MODALES CON ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+            }
+        });
+
+        console.log('✅ Sistema de pago inicializado');
+    </script>
+</body>
+</html>
